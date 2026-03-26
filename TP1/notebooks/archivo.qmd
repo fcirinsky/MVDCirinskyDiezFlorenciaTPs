@@ -1,1 +1,98 @@
+# Trabajo Practico 1
 
+Alumna: **Florencia Cirinsky Diez**
+
+Cargo las librerias necesarias
+
+```{r}
+library(tidyverse) 
+library(janitor)
+```
+
+Creo rutas relativas
+
+```{r}
+path_internet = "../data/internet_users_world_wide.csv"
+path_metadatos = "../data/metadata_countries_internet_users.csv"
+```
+
+Cargo datos
+
+```{r}
+internet_raw = read_csv(path_internet, skip=4) 
+metadatos_raw = read_csv(path_metadatos)
+```
+
+**(Punto 1,3 y 6)**
+
+Creé una función *"normalize-dataframe"* para poder normalizar los datos. Busqué que los nombres de las columnas queden en minúscula y sin espacios, así poder facilitar la lectura del código. Ademas, meti en una soloa funcón el codigo para eliminar las filas y las columnas que estan totalmente vacías, ya que estos datos no aportan información útil para el análisis y solo generan ruido.
+
+```{r}
+normalize_dataframe = function(dataframe, clean = TRUE, which = "cols") {
+  # Normalizacion 
+  if (clean) { 
+    data_clean = janitor::clean_names(dataframe) 
+  } else { 
+    data_clean = dataframe }
+
+  if (which == "both") { 
+    data_clean = data_clean |> 
+      janitor::remove_empty(which = 'cols') |> 
+      janitor::remove_empty(which = 'rows') 
+  } else { 
+    data_clean = janitor::remove_empty(data_clean, which = which) }
+
+return(data_clean)}
+```
+
+Ahora uso la función *normalize_dataframe* recien creada
+
+```{r}
+internet_limpio = normalize_dataframe(internet_raw, which= "both") 
+metadatos_limpio = normalize_dataframe(metadatos_raw, which = "both")
+```
+
+**(Punto 2)**
+
+Cambié la tabla de un formato *Wide* a uno *Long*. Antes los años estaban como columnas individuales, pero con *pivot_long* pude ponerlos en una sola columna *year* y sus valores en la columna *valor_internet*
+
+```{r}
+# Paso la tabla de formato ancho a largo 
+internet_long = internet_limpio |> 
+  pivot_longer(
+    cols = starts_with("x"), 
+    names_to = "year",       
+    values_to = "valor_internet") |> 
+  mutate(
+    year = str_remove(year, "x"),
+    year = as.numeric(year))
+
+head(internet_long)
+```
+
+(Punto 4)
+
+Para combinar las dos tablas use la función *left_join*, donde uní las columnas:
+
+-   country_name = table_name
+
+-   country_code = country_code
+
+```{r}
+tablas_juntas = internet_long |> 
+  left_join(metadatos_limpio, by = c("country_name" = "table_name","country_code" = "country_code"))
+
+head(tablas_juntas)
+```
+
+(Punto 5)
+
+```{r}
+tabla_hipotesis = tablas_juntas |> filter(year >= 2013 & year <= 2023)|> 
+  filter(income_group %in% c("Low income", "Lower middle income")) |> 
+  group_by(region, year, income_group) |> 
+  summarize( promedio_internet = mean(valor_internet, na.rm = TRUE), .groups = "drop") |>
+  arrange(year,region)
+
+print(tabla_hipotesis)
+```
