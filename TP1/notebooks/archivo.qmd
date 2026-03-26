@@ -117,3 +117,49 @@ tabla_hipotesis = tablas_juntas |>
 
 print(tabla_hipotesis)
 ```
+
+
+**Entragable Final**
+```{r}
+tabla_exportada <- tablas_juntas |>
+  filter(
+    year >= 2013 & year <= 2023,
+    income_group %in% c(
+      "Low income",
+      "Lower middle income",
+      "Upper middle income",
+      "High income")) |>
+  group_by(year, income_group) |>
+  summarize(
+    promedio_internet = mean(valor_internet, na.rm = TRUE),
+    .groups = "drop")
+```
+
+```{r}
+tabla_exportada <- tabla_exportada |>
+  pivot_wider(
+    names_from = income_group,
+    values_from = promedio_internet)
+```
+
+```{r}
+tabla_exportada <- tabla_exportada |>
+  mutate(
+    indicator_name = "Proporción de la población que usa internet (%)")
+```
+
+
+```{r}
+
+# Creamos la carpeta output si no existe (por las dudas)
+if (!dir.exists("../output")) {
+  dir.create("../output")
+}
+
+# Exportamos el resultado (Punto Final)
+write_csv(tabla_exportada, "../output/resultado_hipotesis.csv")
+
+# Mensaje de confirmación
+print("Archivo exportado con éxito a la carpeta /output")
+
+```

@@ -1,89 +1,12 @@
-region,year,income_group,promedio_internet
-East Asia & Pacific,2013,Lower middle income,15.10909090909091
-Europe & Central Asia,2013,Lower middle income,21.933333333333334
-Latin America & Caribbean,2013,Lower middle income,20.2225
-Middle East & North Africa,2013,Low income,17.366666666666667
-Middle East & North Africa,2013,Lower middle income,38.675
-South Asia,2013,Lower middle income,13.6575
-Sub-Saharan Africa,2013,Low income,3.958211
-Sub-Saharan Africa,2013,Lower middle income,11.188235294117646
-East Asia & Pacific,2014,Lower middle income,18.64181818181818
-Europe & Central Asia,2014,Lower middle income,27.096666666666668
-Latin America & Caribbean,2014,Lower middle income,21.6504
-Middle East & North Africa,2014,Low income,19.213333333333335
-Middle East & North Africa,2014,Lower middle income,42.0868
-South Asia,2014,Lower middle income,16.328
-Sub-Saharan Africa,2014,Low income,4.8344185
-Sub-Saharan Africa,2014,Lower middle income,14.221876470588235
-East Asia & Pacific,2015,Lower middle income,20.244199090909092
-Europe & Central Asia,2015,Lower middle income,30.675666666666665
-Latin America & Caribbean,2015,Lower middle income,24.63265
-Middle East & North Africa,2015,Low income,20.775066666666667
-Middle East & North Africa,2015,Lower middle income,45.027425
-South Asia,2015,Lower middle income,20.08832
-Sub-Saharan Africa,2015,Low income,5.976917
-Sub-Saharan Africa,2015,Lower middle income,17.35833705882353
-East Asia & Pacific,2016,Lower middle income,25.54932181818182
-Europe & Central Asia,2016,Lower middle income,35.920433333333335
-Latin America & Caribbean,2016,Lower middle income,29.149375
-Middle East & North Africa,2016,Low income,22.48293333333333
-Middle East & North Africa,2016,Lower middle income,48.0580875
-South Asia,2016,Lower middle income,24.798000000000002
-Sub-Saharan Africa,2016,Low income,8.491273333333334
-Sub-Saharan Africa,2016,Lower middle income,20.00231
-East Asia & Pacific,2017,Lower middle income,29.426790909090908
-Europe & Central Asia,2017,Lower middle income,40.486666666666665
-Latin America & Caribbean,2017,Lower middle income,33.292024999999995
-Middle East & North Africa,2017,Low income,24.306133333333335
-Middle East & North Africa,2017,Lower middle income,54.70685
-South Asia,2017,Lower middle income,28.68
-Sub-Saharan Africa,2017,Low income,10.1696215
-Sub-Saharan Africa,2017,Lower middle income,23.423739411764707
-East Asia & Pacific,2018,Lower middle income,36.85581111111111
-Europe & Central Asia,2018,Lower middle income,59
-Latin America & Caribbean,2018,Lower middle income,36.6782
-Middle East & North Africa,2018,Low income,25.285000000000004
-Middle East & North Africa,2018,Lower middle income,57.3525875
-South Asia,2018,Lower middle income,33.21626
-Sub-Saharan Africa,2018,Low income,12.791449444444444
-Sub-Saharan Africa,2018,Lower middle income,28.385846666666666
-East Asia & Pacific,2019,Lower middle income,39.724745454545456
-Europe & Central Asia,2019,Lower middle income,67.25
-Latin America & Caribbean,2019,Lower middle income,40.989275
-Middle East & North Africa,2019,Low income,26.125
-Middle East & North Africa,2019,Lower middle income,63.2298625
-South Asia,2019,Lower middle income,39.8879
-Sub-Saharan Africa,2019,Low income,15.284453157894736
-Sub-Saharan Africa,2019,Lower middle income,29.3124125
-East Asia & Pacific,2020,Lower middle income,44.754529999999995
-Europe & Central Asia,2020,Lower middle income,56.881366666666665
-Latin America & Caribbean,2020,Lower middle income,49.1307
-Middle East & North Africa,2020,Low income,15.43185
-Middle East & North Africa,2020,Lower middle income,67.493225
-South Asia,2020,Lower middle income,46.28152
-Sub-Saharan Africa,2020,Low income,17.607868
-Sub-Saharan Africa,2020,Lower middle income,35.494575
-East Asia & Pacific,2021,Lower middle income,51.489466666666665
-Europe & Central Asia,2021,Lower middle income,67.84966666666666
-Latin America & Caribbean,2021,Lower middle income,55.0032
-Middle East & North Africa,2021,Low income,16.5143
-Middle East & North Africa,2021,Lower middle income,70.26975
-South Asia,2021,Lower middle income,53.5751
-Sub-Saharan Africa,2021,Low income,20.439511764705884
-Sub-Saharan Africa,2021,Lower middle income,39.82753125
-East Asia & Pacific,2022,Lower middle income,53.35371111111111
-Europe & Central Asia,2022,Lower middle income,73.20230000000001
-Latin America & Caribbean,2022,Lower middle income,57.62716666666667
-Middle East & North Africa,2022,Low income,17.1917
-Middle East & North Africa,2022,Lower middle income,72.757975
-South Asia,2022,Lower middle income,57.19892
-Sub-Saharan Africa,2022,Low income,23.14332222222222
-Sub-Saharan Africa,2022,Lower middle income,40.59389375
-East Asia & Pacific,2023,Lower middle income,57.90028
-Europe & Central Asia,2023,Lower middle income,78.09156666666667
-Latin America & Caribbean,2023,Lower middle income,62.24903333333334
-Middle East & North Africa,2023,Low income,17.7089
-Middle East & North Africa,2023,Lower middle income,73.888775
-South Asia,2023,Lower middle income,59.975075000000004
-Sub-Saharan Africa,2023,Low income,24.54759411764706
-Sub-Saharan Africa,2023,Lower middle income,43.06365882352941
+year,High income,Low income,Lower middle income,Upper middle income,indicator_name
+2013,73.82581111111111,5.70714,18.44936170212766,37.98662884615385,Proporción de la población que usa internet (%)
+2014,76.07477361111111,6.709929130434783,21.522039583333335,42.73898653846154,Proporción de la población que usa internet (%)
+2015,77.92466805555556,7.9071104347826084,24.354094166666666,47.07428823529412,Proporción de la población que usa internet (%)
+2016,80.69162602739726,10.240230833333333,28.206152291666665,51.17819411764706,Proporción de la población que usa internet (%)
+2017,82.032396,12.013514347826087,32.44960770833333,55.75231923076923,Proporción de la población que usa internet (%)
+2018,83.76188032786885,14.0408045,38.30476279069767,61.2562125,Proporción de la población que usa internet (%)
+2019,85.53246666666666,16.31688619047619,41.51535434782609,65.03431224489796,Proporción de la población que usa internet (%)
+2020,87.93150923076924,17.410048181818183,46.77440222222222,70.42558,Proporción de la población que usa internet (%)
+2021,89.92364923076923,20.221444444444444,52.22471395348837,74.88980784313725,Proporción de la población que usa internet (%)
+2022,90.97270153846154,22.83007894736842,54.323465909090906,76.90296078431372,Proporción de la población que usa internet (%)
+2023,91.6304609375,24.167666666666666,56.95816222222222,79.07154509803921,Proporción de la población que usa internet (%)
