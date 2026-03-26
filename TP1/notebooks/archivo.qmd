@@ -118,8 +118,8 @@ tabla_hipotesis = tablas_juntas |>
 print(tabla_hipotesis)
 ```
 
-
 **Entragable Final**
+
 ```{r}
 tabla_exportada <- tablas_juntas |>
   filter(
@@ -148,18 +148,13 @@ tabla_exportada <- tabla_exportada |>
     indicator_name = "Proporción de la población que usa internet (%)")
 ```
 
-
 ```{r}
+dir.create("../output", showWarnings = FALSE)
 
-# Creamos la carpeta output si no existe (por las dudas)
-if (!dir.exists("../output")) {
-  dir.create("../output")
-}
+file_name = file.path("../output", "resultado_hipotesis")
 
-# Exportamos el resultado (Punto Final)
-write_csv(tabla_exportada, "../output/resultado_hipotesis.csv")
+write_csv(tabla_exportada, paste0(file_name, ".csv"))
 
-# Mensaje de confirmación
-print("Archivo exportado con éxito a la carpeta /output")
+saveRDS(tabla_exportada, paste0(file_name, ".rds"))
 
 ```
