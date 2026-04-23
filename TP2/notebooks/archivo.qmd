@@ -1,1 +1,39 @@
+---
+title: "Trabajo Practico 2"
+lang: es
+format:
+  html:
+    toc: true
+    toc-location: left
+    embed-resources: true
+    theme: cosmo
+    include-in-header:
+      text: |
+        <style>
+        body {
+          text-align: justify;
+        }
+        </style>
+---
+
+------------------------------------------------------------------------
+
+# Trabajo Practico 2
+
+Cargo las librerias para poder hacer los codigos
+
+```{r}
+install.packages("here")
+library(rvest) #para hacer web scraping
+library(tidyverse) 
+library(here) #para las rutas
+library(xml2) 
+```
+
+Configura las rutas y los directorios
+
+```{r}
+data_dir <- here("TP2/data") if (!dir.exists(data_dir)) { message("Creando el directorio: ", data_dir) dir.create(data_dir, recursive = TRUE) }
+```
+
 
