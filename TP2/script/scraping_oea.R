@@ -15,12 +15,12 @@ if (!dir.exists(data_dir)) {
   dir.create(data_dir, recursive = TRUE)
 }
 
-# 2. Parámetros de búsqueda [cite: 11]
+# 2. Parámetros de búsqueda 
 anio <- 2026
 meses <- 1:4 # Enero a Abril
 base_url <- "https://www.oas.org/es/centro_noticias/comunicados_prensa.asp"
 
-# 3. Revisión de robots.txt [cite: 14, 16]
+# 3. Revisión de robots.txt 
 # Basado en la consigna de prestar atención al Crawl-delay
 delay_segundos <- 5 
 
@@ -29,7 +29,7 @@ message("Iniciando el proceso de scraping...")
 all_comunicados <- list()
 
 for (mes in meses) {
-  # Construir URL por mes [cite: 10, 11]
+  # Construir URL por mes 
   url_busqueda <- paste0(base_url, "?nMes=", mes, "&nAnio=", anio)
   message("Procesando mes ", mes, " de ", anio, "...")
   
@@ -39,7 +39,7 @@ for (mes in meses) {
   timestamp <- format(Sys.time(), "%Y%m%d")
   write_xml(pagina_indice, here("TP2/data", paste0("indice_mes_", mes, "_", timestamp, ".html")))
   
-  # Extraer links de las noticias usando tus selectores [cite: 71]
+  # Extraer links de las noticias usando tus selectores 
   links <- pagina_indice %>% 
     html_nodes(".headlinelink") %>% # Selector que encontraste
     html_attr("href") %>% 
@@ -50,7 +50,7 @@ for (mes in meses) {
   for (link in links) {
     message("  Bajando: ", link)
     
-    # Respetar el Crawl-delay [cite: 16]
+    # Respetar el Crawl-delay 
     Sys.sleep(delay_segundos)
     
     pagina_noticia <- read_html(link)
@@ -71,7 +71,7 @@ for (mes in meses) {
   }
 }
 
-# 4. Consolidar y guardar [cite: 28, 29]
+# 4. Consolidar y guardar 
 tabla_final <- bind_rows(all_comunicados)
 saveRDS(tabla_final, file = here("TP2/data/comunicados_oea.rds"))
 
