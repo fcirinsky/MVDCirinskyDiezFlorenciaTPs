@@ -1,6 +1,5 @@
 # ==============================================================================
 # Script: metrics_figures.R
-# Objetivo: Computar DTM, filtrar 5 términos y generar gráfico (Punto 2.3.a y b)
 # ==============================================================================
 
 library(tidyverse)
@@ -10,33 +9,40 @@ library(ggplot2)
 
 message("Generando métricas y visualizaciones...")
 
-# 1. Cargar el texto procesado (lematizado)
+# 1. cargo el texto procesado (lematizado)
+#busco el archivo que limpie en el paso anterior
 data_path <- here("TP2/output/processed_text.rds")
+
+#si el archivo no aparece, freno el proceso para avisar que salió mal
 if (!file.exists(data_path)) stop("No se encuentra el archivo procesado.")
 
 words_df <- readRDS(data_path)
 
-# 2. Elegir 5 términos relevantes para la OEA (Punto 2.3.a)
-# He elegido estos basados en el contexto institucional, pero podés cambiarlos
+# Punto 2.3.a
+# elijo estos 5 conceptos porque son los pilares de la agenda de la OEA (segun mi opinion)
 mis_terminos <- c("democracia", "electoral", "misión", "derechos", "seguridad") 
 
-# 3. Filtrar y contar frecuencias
-# Esto simula la lógica de la DTM condensada
+# 3. filtrar y contar frecuencias
+#busco mis 5 palabras en toda la base de datos y cuento cuántas veces aparece cada una
 frecuencias <- words_df %>%
   filter(lemma %in% mis_terminos) %>%
   count(lemma, sort = TRUE)
 
-# 4. Generar el gráfico de barras (Punto 2.3.b)
+# Punto 2.3.b
+#hago grafico de barras
 grafico <- ggplot(frecuencias, aes(x = reorder(lemma, n), y = n, fill = lemma)) +
+  #dibujo las columnas
   geom_col(show.legend = FALSE) +
+  #giro el gráfico para que los nombres de las palabras se lean mejor de costado
   coord_flip() + # Para que sea más fácil de leer
-  labs(title = "Frecuencia de términos clave en comunicados OEA",
+ #le pongo los títulos y etiquetas para que quede profesional
+   labs(title = "Frecuencia de términos clave en comunicados OEA",
        subtitle = "Enero - Abril 2026",
        x = "Términos",
        y = "Cantidad de apariciones") +
   theme_minimal() 
 
-# 5. Guardar el gráfico en /output
+# fuardo el gráfico en /output
 ggsave(filename = here("TP2/output/frecuencia_terminos.png"), 
        plot = grafico, 
        width = 10, height = 6, dpi = 300)

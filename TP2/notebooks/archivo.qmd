@@ -25,9 +25,13 @@ format:
 
 Para el TP loq ue hice fue usar herramientas de ciencias de datos para poder entender como funciona la comunicacion de los organismos internacionales (en particular la OEA). Para esto, examiné el total de comunicados de la OEA del primer cuatrimestre de 2026.
 
+------------------------------------------------------------------------
+
 ### **Pregunta de Investigación**
 
 La pregunta en la cual me basé fue: ¿Es la OEA una org monotematica centrada en lo electoral, o su agenda refleja una verdadera preocupación por la seguridad y los DDHH? Todo esto dentro del periodo enero 2026 a abril 2026
+
+------------------------------------------------------------------------
 
 ### Código
 
@@ -39,6 +43,8 @@ source(here("TP2/scripts/scraping_oea.R"))
 source(here("TP2/scripts/processing.R")) 
 source(here("TP2/scripts/metrics_figures.R"))
 ```
+
+------------------------------------------------------------------------
 
 ### Explicación de los scripts
 
@@ -52,10 +58,10 @@ En este archivo hice la recolección de los datos directamente de la pagina de l
 -   *Configuración de la busqueda*: definí los parametros para usar solo los comunicados del primer cuatrimeste (enero a abril) del 2026
 -   *Exploración de datos*: el codigo va mes por mes y descarga la lista de noticias. Guarde cada una de estas paginas como un archivo `.html` con la fecha del dia, para que quede un registro
 -   *Extracción de los datos*: Una vez que tuve los links (con `.headlinelink` ), el script entra a cada comunicado de forma individual. Acá extrae tres datos:
-    -   ID
-    -   Titulo
-    -   Cuerpo del texto
--   Programe un tiempo de espera de 5 segundos entre la descarga de cada noticia, así evito la sobrecarga del servidor
+    -   **ID**
+    -   **Titulo**
+    -   **Cuerpo del texto**
+-   *Tiempo de espera*: Programe un tiempo de espera de 5 segundos entre la descarga de cada noticia, así evito la sobrecarga del servidor
 -   *Tabla*: Por ultimo, todos los comunicados bajados se agrupan en una tabla y se guardan en el archivo `comunicados_oea.rds`
 
 </div>
@@ -96,6 +102,8 @@ En el ultimo script genere un grafico con el resultado del analisis
 
 </div>
 
+------------------------------------------------------------------------
+
 ### Analisis de los resultados
 
 Al mirar los resultados, la palabra que más salió, por lejos, fue **"misión"**, seguida de cerca por **"electoral"**. Esto tiene lógica si pensamos en el rol que cumple la OEA en la región: la mayor parte de su comunicación hoy está concentrada en el despliegue de las Misiones de Observación Electoral. Básicamente, su agenda pública está muy volcada a la parte operativa y de monitoreo en el terreno.
@@ -103,6 +111,8 @@ Al mirar los resultados, la palabra que más salió, por lejos, fue **"misión"*
 Por otro lado, **"seguridad"** y **"democracia"** aparecieron mucho menos que las dos primeras. Esto me llamó la atención porque, aunque son pilares de la organización, parecen tener menos peso en el "día a día" de los comunicados de prensa de este cuatrimestre. Da la sensación de que la OEA hoy comunica más sus acciones concretas (las misiones) que los conceptos teóricos o debates sobre seguridad.
 
 ![](../output/frecuencia_terminos.png)
+
+------------------------------------------------------------------------
 
 ### Conclusiones
 
