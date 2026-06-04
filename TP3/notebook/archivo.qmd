@@ -1,1 +1,78 @@
+---
+title: "Trabajo Practico 3"
+date: "`r Sys.Date()`"
+lang: es
+execute:
+  echo: true
+  output: true
+  eval: true
+  cache: true
+format:
+  html:
+    toc: true
+    toc-location: left
+    toc-title: "Contenidos"
+    embed-resources: true
+    theme: cosmo
+    code-fold: false
+    code-tools: true
+    df-print: paged
+    include-in-header:
+      text: |
+        <style>
+        body {
+          text-align: justify;
+        }
+        </style>
+---
 
+Cargo los librerias necesarias y las pedidas en el enunciado
+
+```{r}
+install.packages("pacman") 
+library(pacman) 
+pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects)
+```
+
+## Cargo base
+
+Cargo la base de datos dada en la consigna
+
+```{r}
+#| label: load-packages #le asigno nombre al bloque
+#| message: false
+
+datos_censo <- read_csv(here("TP3/data/adult_census_USA.csv"))
+```
+
+## **Explorar base**
+
+Una vez que pude cargar las bases, analizo las distintas variables que tiene y sus valores
+
+```{r}
+summary(head) #hago un resumen estadistico general 
+```
+
+Ademas exploro las variables que no tiene valores numericos, para asi poder interpretar como recodificar la base
+
+```{r}
+unique(head$workclass)
+unique(head$education) unique(head$marital_status)
+unique(head$occupation) unique(head$race)
+unique(head$sex) unique(head\$income)
+```
+
+## Factorización de las variables
+
+```{r}
+datos_limpios <- datos_censo %>% 
+  # Forzamos los niveles de income según la consigna:
+  mutate(income = factor(income, levels = c("<=50K", ">50K"))) %>% 
+  # Simplificamos el estado civil (para evitar problemas de convergencia en el modelo)
+  mutate(marital_status_recod = case_when(
+    marital_status %in% c("Married-civ-spouse", "Married-Adf-spouse", "Married-spouse-absent") ~ "Married",
+    marital_status %in% c("Never-married", "Divorced", "Separated", "Widowed") ~ "Single",
+    TRUE ~ "Other"
+  )) %>% 
+  mutate(marital_status_recod = as.factor(marital_status_recod))
+```
