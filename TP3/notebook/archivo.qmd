@@ -32,6 +32,7 @@ Cargo los librerias necesarias y las pedidas en el enunciado
 install.packages("pacman") 
 library(pacman) 
 pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects)
+library(ggplot2)
 ```
 
 ## Cargo base
@@ -98,5 +99,52 @@ datos_ajustados <- datos_censo %>%
   mutate(sex = as.factor(sex))
 ```
 
+Grafico 1 
+Para ver la relación entre las variables continuas uso un grafico de densidad. Con este puedo ver si la gente con ingresos mayores a 50k tiende a concentrarse en edades mas avanzadas que la gente de menores ingresos.
 
+```{r}
+ggplot(datos_modelado, aes(x = age, fill = income)) +
+  geom_density(alpha = 0.5) +
+  theme_minimal(base_size = 12) +
+  labs(
+    title = "Distribución de la Edad por Tramo de Ingresos",
+    subtitle = "Análisis bivariado preliminar",
+    x = "Edad (años)",
+    y = "Densidad",
+    fill = "Ingresos (Income)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
+```
+
+Grafico 2
+En el segundo gráfico uso el modelo de barras aplicadas para poder ver la variables categóricas. Con el position = fill puedo comparar directamente la proporcion de personas que ganan mas de 50k en cada nivel educativo, sin que afecte el hecho de que haya más estudiantes que graduados en la muestra
+
+```{r}
+#| label: fig-exploratorio-educacion
+#| fig-cap: "Proporción de niveles de ingresos según educación alcanzada"
+#| message: false
+#| warning: false
+
+ggplot(datos_modelado, aes(x = education_recod, fill = income)) +
+  # position = "fill" transforma las barras en porcentajes (proporciones)
+  geom_bar(position = "fill") +
+  # eje Y en formato de porcentaje (0% a 100%)
+  scale_y_continuous(labels = scales::label_percent()) +
+  theme_minimal(base_size = 12) +
+  labs(
+    title = "Proporción de Ingresos por Nivel Educativo Recodificado",
+    subtitle = "Análisis bivariado de frecuencias relativas",
+    x = "Nivel Educativo",
+    y = "Porcentaje",
+    fill = "Ingresos (Income)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 15, hjust = 1) # inclino el texto para que no se pise
+  )
+```
 
