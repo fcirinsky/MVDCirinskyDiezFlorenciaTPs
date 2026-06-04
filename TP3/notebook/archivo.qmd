@@ -50,29 +50,53 @@ datos_censo <- read_csv(here("TP3/data/adult_census_USA.csv"))
 Una vez que pude cargar las bases, analizo las distintas variables que tiene y sus valores
 
 ```{r}
-summary(head) #hago un resumen estadistico general 
+summary(datos_censo) #hago un resumen estadistico general 
 ```
 
 Ademas exploro las variables que no tiene valores numericos, para asi poder interpretar como recodificar la base
 
 ```{r}
-unique(head$workclass)
-unique(head$education) unique(head$marital_status)
-unique(head$occupation) unique(head$race)
-unique(head$sex) unique(head\$income)
+unique(datos_censo$workclass)
+unique(datos_censo$education) 
+unique(datos_censo$marital_status)
+unique(datos_censo$occupation) 
+unique(datos_censo$race)
+unique(datos_censo$sex) 
+unique(datos_censo$income)
 ```
 
-## Factorización de las variables
+En base a esta exploración podemos ver que hay algunas variables, como marital_status y education, que tienen muchas categorías. En base a esto, agrupo en categorias mas grandes, para que el modelo no sea difícil de interpretar y evitar que se arruine la estimación.
+
+## Recodificación de las variables
 
 ```{r}
-datos_limpios <- datos_censo %>% 
-  # Forzamos los niveles de income según la consigna:
+#| label: recodificacion-variables
+#| message: false
+
+datos_ajustados <- datos_censo %>% 
+  # 1. ordeno los niveles de income (lo pide la consigna)
   mutate(income = factor(income, levels = c("<=50K", ">50K"))) %>% 
-  # Simplificamos el estado civil (para evitar problemas de convergencia en el modelo)
+  
+  # 2. recodifico el estado civil (de 7 categorías a 2 principales; casada o soltera)
   mutate(marital_status_recod = case_when(
-    marital_status %in% c("Married-civ-spouse", "Married-Adf-spouse", "Married-spouse-absent") ~ "Married",
-    marital_status %in% c("Never-married", "Divorced", "Separated", "Widowed") ~ "Single",
-    TRUE ~ "Other"
+    marital_status %in% c("Married-civ-spouse", "Married-AF-spouse") ~ "Married",
+    marital_status %in% c("Never-married", "Divorced", "Separated", "Widowed", "Married-spouse-absent") ~ "Single"
   )) %>% 
-  mutate(marital_status_recod = as.factor(marital_status_recod))
+  mutate(marital_status_recod = as.factor(marital_status_recod)) %>% 
+  
+  # 3. recodifico la educación (Agrupo los 16 niveles según nivel alcanzado; 4 categorías)
+  mutate(education_recod = case_when(
+    education %in% c("Preschool", "1st-4th", "5th-6th", "7th-8th", "9th", "10th", "11th", "12th") ~ "School",
+    education %in% c("HS-grad", "Some-college") ~ "High_School_or_Some_College",
+    education %in% c("Bachelors", "Assoc-voc", "Assoc-acdm") ~ "Undergraduate",
+    education %in% c("Masters", "Doctorate", "Prof-school") ~ "Postgraduate"
+  )) %>% 
+  mutate(education_recod = factor(education_recod, 
+                                  levels = c("School", "High_School_or_Some_College", "Undergraduate", "Postgraduate"))) %>% 
+  
+  # 4. paso sexo a factor (Para que el modelo lo tome correctamente)
+  mutate(sex = as.factor(sex))
 ```
+
+
+
