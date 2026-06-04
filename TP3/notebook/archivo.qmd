@@ -35,7 +35,7 @@ pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects)
 library(ggplot2)
 ```
 
-## Cargo base
+## *0. Preparación, carga y limpieza de datos*
 
 Cargo la base de datos dada en la consigna
 
@@ -46,7 +46,7 @@ Cargo la base de datos dada en la consigna
 datos_censo <- read_csv(here("TP3/data/adult_census_USA.csv"))
 ```
 
-## **Explorar base**
+## ***1. Análisis exploratorio y decisiones de transformación***
 
 Una vez que pude cargar las bases, analizo las distintas variables que tiene y sus valores
 
@@ -54,7 +54,7 @@ Una vez que pude cargar las bases, analizo las distintas variables que tiene y s
 summary(datos_censo) #hago un resumen estadistico general 
 ```
 
-Ademas exploro las variables que no tiene valores numericos, para asi poder interpretar como recodificar la base
+Además exploro las variables que no tiene valores numericos, para asi poder interpretar como recodificar la base
 
 ```{r}
 unique(datos_censo$workclass)
@@ -66,9 +66,9 @@ unique(datos_censo$sex)
 unique(datos_censo$income)
 ```
 
-En base a esta exploración podemos ver que hay algunas variables, como marital_status y education, que tienen muchas categorías. En base a esto, agrupo en categorias mas grandes, para que el modelo no sea difícil de interpretar y evitar que se arruine la estimación.
+En base a esta exploración podemos ver que hay algunas variables, como *marital_status* y *education*, que tienen muchas categorías. En base a esto, agrupo en categorias mas grandes, para que el modelo no sea difícil de interpretar y evitar que se arruine la estimación.
 
-## Recodificación de las variables
+### Recodificación de las variables
 
 ```{r}
 #| label: recodificacion-variables
@@ -79,31 +79,32 @@ datos_ajustados <- datos_censo %>%
   mutate(income = factor(income, levels = c("<=50K", ">50K"))) %>% 
   
   # 2. recodifico el estado civil (de 7 categorías a 2 principales; casada o soltera)
-  mutate(marital_status_recod = case_when(
+  mutate(marital_status_2 = case_when(
     marital_status %in% c("Married-civ-spouse", "Married-AF-spouse") ~ "Married",
     marital_status %in% c("Never-married", "Divorced", "Separated", "Widowed", "Married-spouse-absent") ~ "Single"
   )) %>% 
-  mutate(marital_status_recod = as.factor(marital_status_recod)) %>% 
+  mutate(marital_status_2 = as.factor(marital_status_2)) %>% 
   
   # 3. recodifico la educación (Agrupo los 16 niveles según nivel alcanzado; 4 categorías)
-  mutate(education_recod = case_when(
+  mutate(education_2 = case_when(
     education %in% c("Preschool", "1st-4th", "5th-6th", "7th-8th", "9th", "10th", "11th", "12th") ~ "School",
     education %in% c("HS-grad", "Some-college") ~ "High_School_or_Some_College",
     education %in% c("Bachelors", "Assoc-voc", "Assoc-acdm") ~ "Undergraduate",
     education %in% c("Masters", "Doctorate", "Prof-school") ~ "Postgraduate"
   )) %>% 
-  mutate(education_recod = factor(education_recod, 
+  mutate(education_2 = factor(education_2, 
                                   levels = c("School", "High_School_or_Some_College", "Undergraduate", "Postgraduate"))) %>% 
   
   # 4. paso sexo a factor (Para que el modelo lo tome correctamente)
   mutate(sex = as.factor(sex))
 ```
 
-Grafico 1 
+### Gráfico 1
+
 Para ver la relación entre las variables continuas uso un grafico de densidad. Con este puedo ver si la gente con ingresos mayores a 50k tiende a concentrarse en edades mas avanzadas que la gente de menores ingresos.
 
 ```{r}
-ggplot(datos_modelado, aes(x = age, fill = income)) +
+ggplot(datos_ajustados, aes(x = age, fill = income)) +
   geom_density(alpha = 0.5) +
   theme_minimal(base_size = 12) +
   labs(
@@ -119,8 +120,9 @@ ggplot(datos_modelado, aes(x = age, fill = income)) +
   )
 ```
 
-Grafico 2
-En el segundo gráfico uso el modelo de barras aplicadas para poder ver la variables categóricas. Con el position = fill puedo comparar directamente la proporcion de personas que ganan mas de 50k en cada nivel educativo, sin que afecte el hecho de que haya más estudiantes que graduados en la muestra
+### Gráfico 2
+
+En el segundo gráfico uso el modelo de barras aplicadas para poder ver la variables categóricas. Con el *position = fill* puedo comparar directamente la proporcion de personas que ganan mas de 50k en cada nivel educativo, sin que afecte el hecho de que haya más estudiantes que graduados en la muestra
 
 ```{r}
 #| label: fig-exploratorio-educacion
@@ -128,7 +130,7 @@ En el segundo gráfico uso el modelo de barras aplicadas para poder ver la varia
 #| message: false
 #| warning: false
 
-ggplot(datos_modelado, aes(x = education_recod, fill = income)) +
+ggplot(datos_ajustados, aes(x = education_2, fill = income)) +
   # position = "fill" transforma las barras en porcentajes (proporciones)
   geom_bar(position = "fill") +
   # eje Y en formato de porcentaje (0% a 100%)
@@ -148,3 +150,64 @@ ggplot(datos_modelado, aes(x = education_recod, fill = income)) +
   )
 ```
 
+## *2. Ajustes de Modelos*
+
+#### **Modelo 1**
+
+Armo la regresión para el primer gráfico
+
+```{r}
+#|label: modelo-1
+
+modelo_1 <- glm(income ~ age + sex + hours_per_week + education_2, data = datos_ajustados, family = binomial)
+
+print(modelo_1)
+
+summary(modelo_1)
+```
+
+[Interpretaciones]{.underline}
+
+A simple vista, se puede ver que todas las variables que puse en el modelo son estadisticamente significativas (p-valor menor a 0.0001). Haciendo un analisis mas detallado de cada variable podemos ver:
+
+-   Edad: manteniendo al resto de las variables constantes, por cada año adicional de edad, la probabilidad de ganar más de 50k aumenta en 0.05. Esto muestra una relación positiva y significata, a mayor edad y experiencia acumulada, mayor probabilidad de estar dentro del grupo de ingresos altos.
+
+-   Género: Con esta variable se puede ver que hay una gran diferencia entre hombres y mujeres. Los hombres muestran una probabilidad de ganar más de 50k que es 1.156 unidades mayor en comparación con las mujeres. Por lo tanto, se evidencia una gran brecha de genero en el mercado laboral, donde los hombres tienen mayores chances de tener ingresos altos a igualdad de edad, educación y horas de trabajo.
+
+-   Horas semanales: Manteniendo el resto de las variables constantes, cada hora adicional trabajada por semana, la probabilidad de superar los 50k aumenta 0.037. Osea, estadísticamente, a mas horas de trabajo hay mayor probabilidad de altos ingresos.
+
+Nivel educativo: con esta variable se puede ver un efecto creciente a medida que aumenta el nivel educativo de los individuos (puse la categoria School como base, ya que es el nivel de educación mas bajo):
+
+-   Los que alcanzaron High School or Some College incrementan su probabilidad en 1.385 respespecto a la base
+
+-   Los que estan en Undergraduate (tienen un título) aumentan su probabilidad en 2.441
+
+-   Por ultimo, los que estan en Postgraduate (tienen un posgrado) son los que tienen el mayor aumento, con 3.206. Con esto podemos ver que alcanzar mayores niveles de educación es uno de los factores más determinantes para acceder al grupo de ingresos altos.
+
+#### **Modelo 2**
+
+Para este modelo segundo modelo quise usar la interacción entre el genero y las horas semanales. Esto lo hice para ver si el rendimiento del esfuerzo en el trabajo (medido por las horas que le dedican) se traducen de igual manera en la probabilidad de alcanzar ingresos altos para hombres y mujeres, teniendo en cuenta las posibles desigualdades o brechas de genero en el salario.
+
+```{r}
+#| label: modelo-2
+
+modelo_interaccion <- glm(income ~ age + education_2 + sex*hours_per_week, data = datos_ajustados, family = binomial)
+
+print(modelo_interaccion)
+
+summary(modelo_interaccion)
+```
+
+[Interpretaciones]{.underline}
+
+En base a esta regresión, podemos ver que el coeficiente de esta interacción es positivo y muy significativo, lo que demuestra que el efecto de trabajar más horas sobre la probabilidad de ganar más de 50k anuales no es igual para hombres que para mujeres.
+
+Entonces, al incluir la interacción, los coeficientes cambian su interpretación:
+
+-   Horas semanales: este resultado ahora representa el efecto de las horas de trabajo exclusivamente para las mujeres (la categorá de referencia de género es femenina). Manteniendo la edad y la educación constante, por cada hora adicional por semana que trabaja una mujer, su probabilidad de ganar más de 50k aumenta en 0.0225
+
+-   Género: con la interacción, este coeficiente representa la brecha de género únicamente para personas que trabajan 0 horas semanales. Si bien es positivo y significativo (muy bajo), carece de interpretacion real por la ausencia de observaciones en cero horas.
+
+-   Término de interacción: con este coeficiente podemos ver el cambio en el efecto de las horas semanales cuando pasamos de mujeres a hombres. Para los hombres, el efecto de cada hora adicional de trabajo sobre la probabilidad de altos ingresos es la suma de ambos coeficientes: 0.0225 + 0.0193 = 0.0418. Con este resultado podemos ver que, cada hora extra trabajada incrementa la probabilidad de altos ingresos de forma mas fuerte en los hombres que en las mujeres.
+
+-   Educación y edad: los coeficientes de la edad y de los niveles educativos (los 3) mantienen la misma magnitud, siendo positivos y altamente significativo, como en el modelo1, demostrando la robustez de esos predictores.
