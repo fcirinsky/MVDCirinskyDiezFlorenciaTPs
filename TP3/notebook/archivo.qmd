@@ -120,6 +120,8 @@ ggplot(datos_ajustados, aes(x = age, fill = income)) +
     plot.title = element_text(face = "bold")
   )
 ```
+El gráfico muestra claramente que la población con ingresos menores o iguales a 50K (curva rosa) es mucho más joven, concentrando su pico cerca de los 25 años y cayendo rápidamente. En cambio, quienes ganan más de 50K (curva celeste) se distribuyen en edades más maduras, formando una meseta entre los 35 y los 50 años.
+
 
 ### Gráfico 2
 
@@ -150,6 +152,7 @@ ggplot(datos_ajustados, aes(x = education_2, fill = income)) +
     axis.text.x = element_text(angle = 15, hjust = 1) # inclino el texto para que no se pise
   )
 ```
+Al estandarizar todas las barras al 100%, se ve un salto drástico y escalonado: a mayor nivel educativo, la proporción celeste (ganar más de 50K) crece enormemente. Mientras que en la categoría "School" apenas roza el 15%, en los graduados universitarios ("Undergraduate") supera el 50% y en los posgrados ("Postgraduate") alcanza casi el 80%.
 
 ## *2. Ajustes de Modelos*
 
@@ -386,3 +389,11 @@ En la misma línea, la devianza residual (mide básicamente el "error" o la info
 Por último, el R² confirma esta mejora al subir a 0.2289, lo que significa que con el modelo 2 podemos ver una mayor porción de la variabilidad total de los ingresos.
 
 Sin embargo, aunque el Modelo 2 es estadísticamente mejor porque mejora todas las métricas globales, la realidad es que agregar esa interacción no genera tanta diferencia; ambos modelos son casi idénticos a la hora de predecir los ingresos.
+
+## *Conclusiones finales*
+
+Al mirar los resultados globales, el Modelo 2 (el interactivo) es estadísticamente el ganador porque mejora todas las métricas, aunque en la práctica la diferencia con el Modelo 1 es mínima y ambos predicen los ingresos de forma casi idéntica. El aporte tan chico de la interacción tiene sentido si pensamos que mide el impacto de una sola hora extra de trabajo. Aunque ese valor parezca bajo de forma individual, se vuelve importante cuando se acumula en personas que hacen jornadas laborales largas.
+
+En cuanto a las variables individuales, el gráfico de bosque nos muestra que factores como ser hombre o trabajar más horas semanales aumentan de forma clara y muy precisa la probabilidad de tener mejores ingresos. Sin embargo, un hallazgo llamativo es el impacto tan bajo que tiene la edad en el modelo. Puede ser que esto ocurre porque la relación entre los años y el ingreso no es una línea recta: al principio de la vida laboral cumplir años suma experiencia y mejores sueldos, pero a edades muy avanzadas el efecto puede volverse contraproducente debido a problemas de salud o menor movilidad. Como nuestro modelo actual es lineal y no contempla esta curvatura, ambos efectos se terminan contrarrestando entre sí y dejan un promedio general muy cercano a uno.
+
+En resumen, aunque variables como el género, las horas de trabajo o la edad le suman matices interesantes al análisis, el verdadero salto en los ingresos lo da la educación. Tener un mayor nivel de estudio demostró ser, sin lugar a dudas, el factor más determinante y el principal motor para acceder a un sueldo alto en esta muestra.
