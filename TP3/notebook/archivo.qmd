@@ -29,7 +29,7 @@ format:
 Cargo los librerias necesarias y las pedidas en el enunciado
 
 ```{r}
-install.packages("pacman") 
+#install.packages("pacman") 
 library(pacman) 
 pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects, kableExtra, broom)
 library(ggplot2)
@@ -120,8 +120,8 @@ ggplot(datos_ajustados, aes(x = age, fill = income)) +
     plot.title = element_text(face = "bold")
   )
 ```
-El gráfico muestra claramente que la población con ingresos menores o iguales a 50K (curva rosa) es mucho más joven, concentrando su pico cerca de los 25 años y cayendo rápidamente. En cambio, quienes ganan más de 50K (curva celeste) se distribuyen en edades más maduras, formando una meseta entre los 35 y los 50 años.
 
+El gráfico muestra claramente que la población con ingresos menores o iguales a 50K (curva rosa) es mucho más joven, concentrando su pico cerca de los 25 años y cayendo rápidamente. En cambio, quienes ganan más de 50K (curva celeste) se distribuyen en edades más maduras, formando una meseta entre los 35 y los 50 años.
 
 ### Gráfico 2
 
@@ -152,6 +152,7 @@ ggplot(datos_ajustados, aes(x = education_2, fill = income)) +
     axis.text.x = element_text(angle = 15, hjust = 1) # inclino el texto para que no se pise
   )
 ```
+
 Al estandarizar todas las barras al 100%, se ve un salto drástico y escalonado: a mayor nivel educativo, la proporción celeste (ganar más de 50K) crece enormemente. Mientras que en la categoría "School" apenas roza el 15%, en los graduados universitarios ("Undergraduate") supera el 50% y en los posgrados ("Postgraduate") alcanza casi el 80%.
 
 ## *2. Ajustes de Modelos*
