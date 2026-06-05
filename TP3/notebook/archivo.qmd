@@ -31,8 +31,9 @@ Cargo los librerias necesarias y las pedidas en el enunciado
 ```{r}
 install.packages("pacman") 
 library(pacman) 
-pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects)
+pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects, kableExtra, broom)
 library(ggplot2)
+library(dplyr)
 ```
 
 ## *0. Preparación, carga y limpieza de datos*
@@ -211,3 +212,177 @@ Entonces, al incluir la interacción, los coeficientes cambian su interpretació
 -   Término de interacción: con este coeficiente podemos ver el cambio en el efecto de las horas semanales cuando pasamos de mujeres a hombres. Para los hombres, el efecto de cada hora adicional de trabajo sobre la probabilidad de altos ingresos es la suma de ambos coeficientes: 0.0225 + 0.0193 = 0.0418. Con este resultado podemos ver que, cada hora extra trabajada incrementa la probabilidad de altos ingresos de forma mas fuerte en los hombres que en las mujeres.
 
 -   Educación y edad: los coeficientes de la edad y de los niveles educativos (los 3) mantienen la misma magnitud, siendo positivos y altamente significativo, como en el modelo1, demostrando la robustez de esos predictores.
+
+## *3. Interpretación de resultados y efectos marginales*
+
+#### Tabla de Efectos Marginales Promedio (AME)
+
+[IMPORTANTE]{.underline}: en el segundo modelo lo que veiamos eran los coeficientes "log-odds". El tema con estos resultados es que son difíciles de entender en la vida real y se vuelven muy complicados cuando se cruzan variables.
+
+Para solucionar esto y hacer el informa más claro, usamos los Efectos Marginales Promedio. Con este se puede traducir todo ese problema matemático a porcentaje de probabilidad real, así poder ver directamente cuánto sube o baja la probabilidad de ganar bien según cada variable, de forma más sencilla.
+
+```{r}
+#| label: tabla-AME
+#| message: false
+#| warning: false
+
+efectos_marginales <- avg_slopes(modelo_interaccion) #calculo el AME
+
+efectos_marginales %>% as_tibble() %>% 
+  select(term, contrast, estimate, std.error, p.value) %>% 
+  knitr::kable(
+    digits = 4,
+    col.names = c("Variable", "Contraste / Cambio", "Efecto Marginal (AME)", "Error Estándar", "p-valor"),
+    caption = "Efectos Marginales Promedio (AME) - Modelo Interactivo"
+  )
+```
+
+Mirando la tabla de Efactos Marginales se puede ver el impacto real de cada una de las bariables en el salario que estas van a tener:
+
+-   Edad: A igual educación y horas de trabajo, por cada año más de edad que cumple una persona, su probabilidad de ganar más de 50K sube en promedio un 0.89%. Osea, la experiencia importa
+
+-   Horas semanales: En promedio, por cada hora extra que una persona trabaja a la semana, su probabilidad de tener un sueldo alto sube un 0.67%
+
+-   Género: a igualdad edad, educación y horas trabajadas, los hombres tienen en promedio un 22.23% más de probabilidad de ganar más de 50K que las mujeres. Esto deja ver la gran brecha de género que queda marcada en la disparidad de ingresos.
+
+-   Educación: En la educación se puede ver el mayor impacto. Si comparamos a las personas con quines solo fueron a la escuela básica (la categorá base):
+
+    -   Tener secundario o algo de universidad sube la probabildad de ganar sobre 50K en 22.75%
+
+    -   Tener un título universitario de grado sube esa probabilidad en un 44.19%
+
+    -   Tener un posgrado aumenta significativamente las probabilidades en un 57.92%
+
+#### Gráfico Bosque
+
+```{r}
+#| label: coefplot-modelo-logistico
+#| fig-width: 12
+#| fig-height: 8
+#| message: false
+#| warning: false
+
+datos_plot <- broom::tidy(modelo_interaccion) %>%
+  filter(term != "(Intercept)") %>%
+  mutate(
+    estimado      = exp(estimate),
+    low_99  = exp(estimate - 2.576 * std.error),
+    high_99 = exp(estimate + 2.576 * std.error),
+    low_95  = exp(estimate - 1.96 * std.error),
+    high_95 = exp(estimate + 1.96 * std.error),
+    low_80  = exp(estimate - 1.282 * std.error),
+    high_80 = exp(estimate + 1.282 * std.error),
+    etiqueta = case_match(
+      term,
+      "age"                                    ~ "Edad",
+      "sexMale"                                ~ "Género: Hombre",
+      "hours_per_week"                         ~ "Horas semanales",
+      "education_2High_School_or_Some_College" ~ "Educación: Secundaria / Algo de Universidad",
+      "education_2Undergraduate"                ~ "Educación: Grado Universitario",
+      "education_2Postgraduate"                 ~ "Educación: Posgrado",
+      "sexMale:hours_per_week"                 ~ "Interacción: Hombre × Horas"
+    ),
+    significativo = ifelse(p.value < 0.05, "Sig. (p<0.05)", "No sig.")
+  )%>%  #los quise ordenar segun su valor, porque sino se orden alfabeticamente
+  arrange(estimado) %>% 
+  mutate(etiqueta = factor(etiqueta, levels = unique(etiqueta)))
+
+ggplot(
+  datos_plot,
+  aes(
+    x     = estimado,
+    y     = etiqueta,
+    color = significativo
+  )
+) +
+  geom_vline(
+    xintercept = 1,
+    linetype   = "dashed",
+    color      = "gray40",
+    linewidth  = 0.7
+  ) +
+  geom_errorbarh(
+    aes(xmin = low_99, xmax = high_99),
+    height    = 0.1,
+    linewidth = 0.4,
+    alpha     = 0.5
+  ) +
+  geom_errorbarh(
+    aes(xmin = low_95, xmax = high_95),
+    height    = 0.2,
+    linewidth = 0.9,
+    alpha     = 0.7
+  ) +
+  geom_errorbarh(
+    aes(xmin = low_80, xmax = high_80),
+    height    = 0.3,
+    linewidth = 1.8
+  ) +
+  geom_point(
+    aes(fill = significativo),
+    shape = 21,
+    color = "black",
+    size  = 3.5
+  ) +
+  scale_x_log10() +
+  scale_color_manual(
+    values = c("Sig. (p<0.05)" = "#08519C", "No sig." = "#CB181D"),
+    name   = "Significancia"
+  ) +
+  labs(
+    title    = "Odds Ratios con Intervalos de Confianza Graduados (80%, 95% y 99%)",
+    subtitle = "Modelo Interactivo. Variable dependiente: Ingresos superiores a 50K (>50K)",
+    x        = "Odds Ratios (Escala Logarítmica)",
+    y        = NULL,
+    caption  = "Nota: Si las barras cruzan la línea vertical de 1, el efecto no es significativo.\nEl grosor de las barras disminuye a mayor nivel de confianza (80%, 95% y 99%)."
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title       = element_text(face = "bold", size = 14),
+    plot.subtitle    = element_text(size = 11, color = "gray40"),
+    axis.text.y      = element_text(size = 11),
+    axis.text.x      = element_text(size = 11),
+    legend.position  = "bottom",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank()
+  )
+```
+
+[Interpretaciones]{.underline}:
+
+Con este gráfico de bosque podemos ver qué tanto influye cada variable en la probabilidad de ganar más de 50K al año y qué tan precisas son nuestras estimaciones. La línea del uno es la línea de referencia (punto neutro). Si una barra cruza esa linea, significa que esa variable no es importante para el salario. Pero, como se ve en el gráfico, ninguna barra toca el 1, así que se puede decir que todas las variables del modelo son importantes.
+
+Analizando más en profundidad cada una de las variables podemos llegar a distintas conclusiones. En primer lugar, podemos ver que la educación tiene un peso muy grande, ya que es por lejos la mas influyente. Las personas con Posgrado tienen la ventaja más grande de todas (su Odds Ratio se dispara cerca de 25), le siguen los graduados de grado universitario (alrededor de 11) y luego secundaria/algo de universidad (alrededor de 4).
+
+En segundo lugar, la variable de género muestra la brecha que hay entre ambos sexos, como ya venimos mencionando anteriormente. Ser hombre está claramente a la derecha del 1 (cerca del 1.5). Esto muestra que, a igual edad y educación, los hombres tienen un 50% más de chances de estar en el grupo de ingresos altos que las mujeres.
+
+Por ultimo, la edad, las horas semanales y la interaccion de ambas estan bastante pegados a la línea del 1. Esto puede ser porque se mide "año por año" o "hora por hora" y el salto númerico es más chico.
+
+## *4. Comparación global de modelos*
+
+```{r}
+comparacion_global <- bind_rows(
+  glance(modelo_1) %>%
+    mutate(modelo = "Modelo 1"),
+  glance(modelo_interaccion) %>%
+    mutate(modelo = "Modelo 2")) %>%
+  mutate(
+    r2 = 1 - (deviance / null.deviance)) %>%
+  select(modelo, AIC, deviance, null.deviance, r2)
+
+comparacion_global %>%
+  kable(digits = 4,
+        col.names = c("Modelo", "AIC", "Deviance residual", "Deviance nula", "R²"),
+        caption = "Comparación global: Modelo 1 y Modelo 2") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+[Interpretación]{.underline}
+
+Al mirar los resultados de la tabla, queda muy claro que el Modelo 2 (el interactivo) es el ganador para explicar los ingresos de las personas. Esto lo vemos primero en el AIC, que baja de 16861.90 a 16842.92; en estadística, un AIC más chico significa que el modelo es más eficiente porque logra explicar mejor la realidad sin complicar las cosas de más.
+
+En la misma línea, la devianza residual (mide básicamente el "error" o la información que el modelo se está perdiendo) también disminuye en el segundo modelo, pasando a 16826.92. Esto nos demuestra que haber incluido el cruce entre el género y las horas semanales ayudó a que el modelo se ajuste muchísimo más a los datos reales de la muestra.
+
+Por último, el R² confirma esta mejora al subir a 0.2289, lo que significa que con el modelo 2 podemos ver una mayor porción de la variabilidad total de los ingresos.
+
+Sin embargo, aunque el Modelo 2 es estadísticamente mejor porque mejora todas las métricas globales, la realidad es que agregar esa interacción no genera tanta diferencia; ambos modelos son casi idénticos a la hora de predecir los ingresos.
