@@ -29,11 +29,10 @@ format:
 Cargo los librerias necesarias y las pedidas en el enunciado
 
 ```{r}
-#install.packages("pacman") 
-library(pacman) 
+#verifico si pacman ya existe, si no está lo instalo 
+if (!require("pacman")) install.packages("pacman", repos ="https://cloud.r-project.org")
+
 pacman::p_load(here, tidyverse, broom, ggstats, marginaleffects, kableExtra, broom)
-library(ggplot2)
-library(dplyr)
 ```
 
 ## *0. Preparación, carga y limpieza de datos*
@@ -155,7 +154,43 @@ ggplot(datos_ajustados, aes(x = education_2, fill = income)) +
 
 Al estandarizar todas las barras al 100%, se ve un salto drástico y escalonado: a mayor nivel educativo, la proporción celeste (ganar más de 50K) crece enormemente. Mientras que en la categoría "School" apenas roza el 15%, en los graduados universitarios ("Undergraduate") supera el 50% y en los posgrados ("Postgraduate") alcanza casi el 80%.
 
+### Gráfico 3
+
+Hago un gráfico de visualización bivariada para poder ver las distribuciones de hora trabajadas segín el sexo de las personas.
+
+```{r}
+#| label: fig-exploratorio-interaccion
+#| fig-cap: "Distribución de horas semanales por tramo de ingresos y sexo"
+#| message: false
+#| warning: false
+
+ggplot(datos_ajustados, aes(x = hours_per_week, fill = income)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex) +  # Abre el gráfico en paneles por sexo
+  theme_minimal(base_size = 12) +
+  labs(
+    title = "Distribución de Horas Trabajadas según Ingreso y Sexo",
+    x = "Horas semanales de trabajo",
+    y = "Densidad",
+    fill = "Ingresos (Income)"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
+```
+
+Al graficar esta interacción se puede ver una gran diferencia entre sexos. El panel de los hombres es más disperso y cubre más base hacia la derecha, por lo tanto, a medida que suman más horas laborales, tienen una tendencia mayor (comparando con las mujeres) a recibir mayores salarios.
+
 ## *2. Ajustes de Modelos*
+
+Antes de ajustar los modelos, es importante determinar cuales son las categorias de referencia (de base) para las variables categóricas:
+
+-   Para genero: Female
+
+-   Para el nivel educativo: School (porque es el nivel de educación mas bajo)
+
+Entonces, en ambos modelos el intercept representa el valor esperado para una mujer que tiene *School* como nivel máximo de estudios
 
 #### **Modelo 1**
 
